@@ -1,0 +1,46 @@
+import math
+import matplotlib.pyplot as plt
+
+loan_amount= fields.Float(string="loan Amount", compute ='_compute_loans')
+x_MarginAnu = fields.Float(string="Margin Anuitas", compute ='_compute_loans')
+x_sukubunga= fields.Float(string="Suku Bunga Pertahun", compute ='_compute_loans')
+no_month = fields.Integer(string="No Of Month", default=1)
+# membuat fungsi untuk menghitung kredit anuitas
+def angsuran_bulanan_anuitas(bkrd, skbg, lkrd):
+    compute_loan_line = bkrd * (skbg/no_month) * (1/(1 - (1 / math.pow((1+(skbg/no_month)), lkrd))))
+    return compute_loan_line
+
+def bunga_anuitas(sld, skbg):
+    x_MarginAnu = sld * (skbg/no_month)
+    return x_MarginAnu
+
+def angsuran_pokok_anuitas(angs_total, angs_bg):
+    return angs_total - angs_bg
+
+# menghitung kredit anuitas perbulan
+angsuran_bulanan = angsuran_bulanan_anuitas(besar_kredit, suku_bunga, lama_kredit)
+print "angsuran bulanan: ", angsuran_bulanan
+
+angs_bulanan_list = []
+angs_pokok_list = []
+angs_bunga_list = []
+saldo = besar_kredit
+for i in range(1, lama_kredit+1):
+    angsuran_bunga = bunga_anuitas(saldo, suku_bunga)
+    print i, ":"
+    print "angsuran bunga: ", angsuran_bunga
+    angs_bunga_list.append(angsuran_bunga)
+    angsuran_pokok = angsuran_pokok_anuitas(angsuran_bulanan, angsuran_bunga)
+    print "angsuran pokok: ", angsuran_pokok
+    angs_pokok_list.append(angsuran_pokok)
+    angsuran_bulanan = angsuran_pokok + angsuran_bunga
+    print "angsuran bulanan:", 
+    angs_bulanan_list.append(angsuran_bulanan)
+    print "-----"
+    saldo = saldo - angsuran_pokok
+
+plt.plot(range(1, lama_kredit+1), angs_pokok_list, 
+         range(1, lama_kredit+1), angs_bunga_list,
+         range(1, lama_kredit+1), angs_bulanan_list, 
+        )
+plt.show()
